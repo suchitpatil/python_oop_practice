@@ -40,34 +40,88 @@ class User:
             print("Invalid Action")
 
 
-print("Adding Harry Potter Book")
-harry_potter = Book(book_id=1, book_category="fiction")
-print(harry_potter.book_id)
-print(harry_potter.book_category)
-print(harry_potter.issued_to)
+# print("Adding Harry Potter Book")
+# harry_potter = Book(book_id=1, book_category="fiction")
+# print(harry_potter.book_id)
+# print(harry_potter.book_category)
+# print(harry_potter.issued_to)
+#
+# print("Adding User")
+# suchit = User(user_id=1, user_category="student")
+# print(suchit.user_id)
+# print(suchit.user_category)
+# print(suchit.book_issued)
+#
+# print("Suchit issues harry potter")
+# suchit.update_user(book_id=harry_potter.book_id, action="issue")
+# harry_potter.update_book(user_id=suchit.user_id, action="issue")
+# print(harry_potter.book_id)
+# print(harry_potter.book_category)
+# print(harry_potter.issued_to)
+# print(suchit.user_id)
+# print(suchit.user_category)
+# print(suchit.book_issued)
+#
+# print("Suchit return harry potter")
+# suchit.update_user(book_id=harry_potter.book_id, action="return")
+# harry_potter.update_book(user_id=suchit.user_id, action="return")
+# print(harry_potter.book_id)
+# print(harry_potter.book_category)
+# print(harry_potter.issued_to)
+# print(suchit.user_id)
+# print(suchit.user_category)
+# print(suchit.book_issued)
 
-print("Adding User")
-suchit = User(user_id=1, user_category="student")
-print(suchit.user_id)
-print(suchit.user_category)
-print(suchit.book_issued)
 
-print("Suchit issues harry potter")
-suchit.update_user(book_id=harry_potter.book_id, action="issue")
-harry_potter.update_book(user_id=suchit.user_id, action="issue")
-print(harry_potter.book_id)
-print(harry_potter.book_category)
-print(harry_potter.issued_to)
-print(suchit.user_id)
-print(suchit.user_category)
-print(suchit.book_issued)
+class Library:
+    def __init__(self):
+        self.book_dict = {}  # initially there will be no books
+        self.user_dict = {}  # intitally there will be no users
 
-print("Suchit return harry potter")
-suchit.update_user(book_id=harry_potter.book_id, action="return")
-harry_potter.update_book(user_id=suchit.user_id, action="return")
-print(harry_potter.book_id)
-print(harry_potter.book_category)
-print(harry_potter.issued_to)
-print(suchit.user_id)
-print(suchit.user_category)
-print(suchit.book_issued)
+    def add_book(self, book_id, book_category):
+        if str(book_id) in self.book_dict:
+            print("Book_id Already in use!")
+        else:
+            self.book_dict[str(book_id)] = Book(
+                book_id=book_id, book_category=book_category
+            )  # add new book.
+
+    def add_user(self, user_id, user_category):
+        if str(user_id) in self.user_dict:
+            print("User_Id Already exist!")
+        else:
+            self.user_dict[str(user_id)] = User(
+                user_id=user_id, user_category=user_category
+            )  # add new user.
+
+    def book_issue(self, book_id, user_id, user_category):
+        # check library owns then book
+        if str(book_id) in self.book_dict:
+            #   check wether user is registered in library
+            if str(user_id) in self.user_dict:
+                # check if book is avilable or not
+                if self.book_dict[str(book_id)].issued_to == -1:
+                    # check if user has return the book
+                    if self.user_dict[str(user_id)].book_issued == -1:
+                        # then lend book is user
+                        # set user's book issued to book id
+                        self.user_dict[str(user_id)].book_issued = book_id
+                        # set book's isued to user id
+                        self.book_dict[str(book_id)].issued_to = user_id
+                    else:
+                        print("Return previous Book!")
+                        self.return_book(user_id)
+                else:
+                    print("Book is Already issued to somebody else!")
+            else:
+                self.add_user(user_id=user_id, user_category=user_category)
+                self.book_issue(
+                    book_id=book_id, user_id=user_id, user_category=user_category
+                )
+        else:
+            print("library does not own the book")
+
+    def return_book(self, user_id):
+        current_book_id = self.user_dict[str(user_id)].book_issued
+        self.user_dict[str(user_id)].book_issued = -1
+        self.book_dict[str(current_book_id)].issued_to = -1
