@@ -85,6 +85,7 @@ class Library:
             self.book_dict[str(book_id)] = Book(
                 book_id=book_id, book_category=book_category
             )  # add new book.
+            print("Added Book id ", book_id, book_category)
 
     def add_user(self, user_id, user_category):
         if str(user_id) in self.user_dict:
@@ -93,6 +94,7 @@ class Library:
             self.user_dict[str(user_id)] = User(
                 user_id=user_id, user_category=user_category
             )  # add new user.
+            print("Added User id ", user_id, user_category)
 
     def book_issue(self, book_id, user_id, user_category):
         # check library owns then book
@@ -108,12 +110,14 @@ class Library:
                         self.user_dict[str(user_id)].book_issued = book_id
                         # set book's isued to user id
                         self.book_dict[str(book_id)].issued_to = user_id
+                        print("Issued book {} to user {}".format(book_id, user_id))
                     else:
                         print("Return previous Book!")
                         self.return_book(user_id)
                 else:
                     print("Book is Already issued to somebody else!")
             else:
+                print("Registering new user ....")
                 self.add_user(user_id=user_id, user_category=user_category)
                 self.book_issue(
                     book_id=book_id, user_id=user_id, user_category=user_category
@@ -121,7 +125,26 @@ class Library:
         else:
             print("library does not own the book")
 
-    def return_book(self, user_id):
+    def book_return(self, user_id):
         current_book_id = self.user_dict[str(user_id)].book_issued
         self.user_dict[str(user_id)].book_issued = -1
         self.book_dict[str(current_book_id)].issued_to = -1
+        print("Returned book {} from user {} ".format(current_book_id, user_id))
+
+
+library = Library()  # making library object
+for i in range(5):  # added 5 books
+    library.add_book(i, "Fiction")
+for i in range(5):  # added 5 users
+    library.add_user(i, "Student")
+library.add_book(0, "Fiction")  # testing add_book exception
+library.add_user(0, "Student")  # testing add_user exception
+
+for i in range(5):  # issuing book
+    library.book_issue(i, i, "Student")
+
+library.book_issue(
+    book_id=0, user_id=5, user_category="Student"
+)  # testing issuing book
+library.book_return(user_id=0)  # return book
+library.book_issue(book_id=0, user_id=5, user_category="Student")  # testig issuing book
